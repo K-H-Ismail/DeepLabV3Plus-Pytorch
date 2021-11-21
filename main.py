@@ -18,6 +18,7 @@ from utils.visualizer import Visualizer
 from PIL import Image
 import matplotlib
 import matplotlib.pyplot as plt
+from DCLS.modules.Dcls import Dcls2d
 
 
 def get_argparser():
@@ -94,6 +95,13 @@ def get_argparser():
                         help='env for visdom')
     parser.add_argument("--vis_num_samples", type=int, default=8,
                         help='number of samples for visualization (default: 8)')
+    
+    # Dcls options
+    parser.add_argument("--dcls", action='store_true', default=False,
+                        help="apply dcls conv to decoder and aspp")
+    parser.add_argument("--dcls_gain", type=float, default=1,
+                        help='gain for dcls convs (default: 1)')
+    
     return parser
 
 
@@ -262,6 +270,8 @@ def main():
     model = model_map[opts.model](num_classes=opts.num_classes, output_stride=opts.output_stride)
     if opts.separable_conv and 'plus' in opts.model:
         network.convert_to_separable_conv(model.classifier)
+    if opts.dcls:
+        network.convert_to_dcls_conv(model.classifier, opts.dcls_gain)          
     utils.set_bn_momentum(model.backbone, momentum=0.01)
     
     # Set up metrics
@@ -361,10 +371,33 @@ def main():
                 print("Epoch %d, Itrs %d/%d, Loss=%f" %
                       (cur_epochs, cur_itrs, opts.total_itrs, interval_loss))
                 interval_loss = 0.0
+                if (opts.dcls):
+                    p = model.module.classifier.aspp.convs[3][0]
+                    scaling = np.sqrt((p.in_channels//p.groups)*p.kernel_size[0]*p.kernel_size[1])  * p.gain
+                    print('\nscaling: %f' % scaling)
+                    print('\ndilation_max: (%d,%d)' % p.dilation)            
+                    print('P size: [%d, %d, %d, %d]' % p.P.size())
+                    print('max |P1|: ', p.P.abs().max().item()*scaling)    
+                    print('P1[0,0,:,:]:') 
+                    print(p.P[0,0,:,:]*scaling)
+                    print('Grad P1[0,0,:,:]:')                     
+                    print(p.P.grad[0,0,:,:]*scaling)
+                    print('\n|Grad P1|_max: %f' % p.P.grad.abs().max())                     
+                    print('# |P| > 1: ', p.P[p.P.abs()*scaling> 1].size()[0])   
+                    print('hist P (for the 3 dilated convs): ')
+                    print(torch.histc(p.P.abs()*scaling, bins=p.dilation[0]//2, min=0, max=p.dilation[0]/2).t())
+                    p = model.module.classifier.aspp.convs[2][0]
+                    scaling = np.sqrt((p.in_channels//p.groups)*p.kernel_size[0]*p.kernel_size[1]) * p.gain
+                    print(torch.histc(p.P.abs()*scaling, bins=p.dilation[0]//2, min=0, max=p.dilation[0]/2).t())                 
+                    p = model.module.classifier.aspp.convs[1][0]
+                    scaling = np.sqrt((p.in_channels//p.groups)*p.kernel_size[0]*p.kernel_size[1]) * p.gain
+                    print(torch.histc(p.P.abs()*scaling, bins=p.dilation[0]//2, min=0, max=p.dilation[0]/2).t())
+                    print("-------------------------------------------------")
+
 
             if (cur_itrs) % opts.val_interval == 0:
-                save_ckpt('checkpoints/latest_%s_%s_os%d.pth' %
-                          (opts.model, opts.dataset, opts.output_stride))
+                save_ckpt('checkpoints/latest_%s_%s%s_os%d.pth' %
+                          (opts.model, opts.dataset,"_dcls" if opts.dcls else "", opts.output_stride))
                 print("validation...")
                 model.eval()
                 val_score, ret_samples = validate(
@@ -372,8 +405,8 @@ def main():
                 print(metrics.to_str(val_score))
                 if val_score['Mean IoU'] > best_score:  # save best model
                     best_score = val_score['Mean IoU']
-                    save_ckpt('checkpoints/best_%s_%s_os%d.pth' %
-                              (opts.model, opts.dataset,opts.output_stride))
+                    save_ckpt('checkpoints/best_%s_%s%s_os%d.pth' %
+                              (opts.model, opts.dataset,"_dcls" if opts.dcls else "", opts.output_stride))
 
                 if vis is not None:  # visualize validation score and samples
                     vis.vis_scalar("[Val] Overall Acc", cur_itrs, val_score['Overall Acc'])

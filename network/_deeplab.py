@@ -3,6 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from .utils import _SimpleSegmentationModel
+from DCLS.modules.Dcls import Dcls2d
 
 
 __all__ = ["DeepLabV3"]
@@ -175,4 +176,23 @@ def convert_to_separable_conv(module):
                                       module.bias)
     for name, child in module.named_children():
         new_module.add_module(name, convert_to_separable_conv(child))
+    return new_module
+
+def convert_to_dcls_conv(module, dcls_gain=1.0):
+    new_module = module
+    if isinstance(module, nn.Conv2d) and module.dilation[0]>1:
+        new_module = Dcls2d(module.in_channels,
+                                      module.out_channels, 
+                                      module.kernel_size,
+                                      module.stride,
+                                      module.padding,
+                                      module.dilation,
+                                      module.groups,
+                                      module.bias,
+                                      sign_grad = False,                            
+                                      gain = dcls_gain
+                                         )
+    for name, child in module.named_children():
+        new_module.add_module(name, convert_to_dcls_conv(child, dcls_gain))
+        
     return new_module
