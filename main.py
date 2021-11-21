@@ -35,7 +35,10 @@ def get_argparser():
     parser.add_argument("--model", type=str, default='deeplabv3plus_mobilenet',
                         choices=['deeplabv3_resnet50',  'deeplabv3plus_resnet50',
                                  'deeplabv3_resnet101', 'deeplabv3plus_resnet101',
-                                 'deeplabv3_mobilenet', 'deeplabv3plus_mobilenet'], help='model name')
+                                 'deeplabv3_mobilenet', 'deeplabv3plus_mobilenet', 
+                                 'deeplabv3_xception41','deeplabv3plus_xception41',
+                                 'deeplabv3_xception65','deeplabv3plus_xception65',
+                                 'deeplabv3_xception71','deeplabv3plus_xception71'], help='model name')
     parser.add_argument("--separable_conv", action='store_true', default=False,
                         help="apply separable conv to decoder and aspp")
     parser.add_argument("--output_stride", type=int, default=16, choices=[8, 16])
@@ -247,7 +250,13 @@ def main():
         'deeplabv3_resnet101': network.deeplabv3_resnet101,
         'deeplabv3plus_resnet101': network.deeplabv3plus_resnet101,
         'deeplabv3_mobilenet': network.deeplabv3_mobilenet,
-        'deeplabv3plus_mobilenet': network.deeplabv3plus_mobilenet
+        'deeplabv3plus_mobilenet': network.deeplabv3plus_mobilenet,
+        'deeplabv3_xception41': network.deeplabv3plus_xception41,        
+        'deeplabv3plus_xception41': network.deeplabv3plus_xception41,
+        'deeplabv3_xception65': network.deeplabv3plus_xception65,         
+        'deeplabv3plus_xception65': network.deeplabv3plus_xception65,        
+        'deeplabv3_xception71': network.deeplabv3plus_xception71,        
+        'deeplabv3plus_xception71': network.deeplabv3plus_xception71
     }
 
     model = model_map[opts.model](num_classes=opts.num_classes, output_stride=opts.output_stride)
