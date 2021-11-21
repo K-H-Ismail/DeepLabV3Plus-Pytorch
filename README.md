@@ -12,6 +12,9 @@ Specify the model architecture with '--model ARCH_NAME' and set the output strid
 |deeplabv3_resnet50|deeplabv3plus_resnet50|
 |deeplabv3_resnet101|deeplabv3plus_resnet101|
 |deeplabv3_mobilenet|deeplabv3plus_mobilenet |
+|deeplabv3_xception41|deeplabv3plus_xception41 |
+|deeplabv3_xception65|deeplabv3plus_xception65 |
+|deeplabv3_xception71|deeplabv3plus_xception71 |
 
 All pretrained models: [Dropbox](https://www.dropbox.com/sh/w3z9z8lqpi8b2w7/AAB0vkl4F5vy6HdIhmRCTKHSa?dl=0), [Tencent Weiyun](https://share.weiyun.com/qqx78Pv5)
 
@@ -60,6 +63,7 @@ validation: 513x513 center crop
 | DeepLabV3Plus-MobileNet   | 16      |  17.0G      |  16/16   |  0.711    |    [Download](https://www.dropbox.com/s/0idrhwz6opaj7q4/best_deeplabv3plus_mobilenet_voc_os16.pth?dl=0)   | [Download](https://share.weiyun.com/djX6MDwM) |
 | DeepLabV3Plus-ResNet50    | 16      |   62.7G     |  16/16   |  0.772     |    [Download](https://www.dropbox.com/s/dgxyd3jkyz24voa/best_deeplabv3plus_resnet50_voc_os16.pth?dl=0)   | [Download](https://share.weiyun.com/uTM4i2jG) |
 | DeepLabV3Plus-ResNet101     | 16      |  83.4G     |  16/16   |  0.783     |    [Download](https://www.dropbox.com/s/bm3hxe7wmakaqc5/best_deeplabv3plus_resnet101_voc_os16.pth?dl=0)   | [Download](https://share.weiyun.com/UNPZr3dk) |
+| DeepLabV3Plus-Xception65     | 16      |  N/A    |  16/16   |  0.868    |    [Download](https://www.dropbox.com/s/lyitv285bgza9u5/best_deeplabv3plus_xception65_voc_os16.pth?dl=0)   | - |
 
 
 ### 2. Performance on Cityscapes (19 classes, 1024 x 2048)
