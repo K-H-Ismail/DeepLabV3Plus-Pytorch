@@ -1,3 +1,5 @@
+This repository contains an implementation of Deeplabv3+ with DCLS for the CVPR 2022 submission ["Dilated-Convolution-with-Learnable-Spacings-PyTorch"](https://github.com/tmp-cvpr/Dilated-Convolution-with-Learnable-Spacings-PyTorch).
+
 # DeepLabv3Plus-Pytorch
 
 DeepLabv3, DeepLabv3+ with pretrained models for Pascal VOC & Cityscapes.
@@ -52,6 +54,8 @@ python predict.py --input datasets/data/cityscapes/leftImg8bit/train/bremen  --d
 
 ### 1. Performance on Pascal VOC2012 Aug (21 classes, 513 x 513)
 
+#### 1.1 With baseline ASPP module
+
 Training: 513x513 random crop  
 validation: 513x513 center crop
 
@@ -65,6 +69,14 @@ validation: 513x513 center crop
 | DeepLabV3Plus-ResNet101     | 16      |  83.4G     |  16/16   |  0.783     |    [Download](https://www.dropbox.com/s/bm3hxe7wmakaqc5/best_deeplabv3plus_resnet101_voc_os16.pth?dl=0)   | [Download](https://share.weiyun.com/UNPZr3dk) |
 | DeepLabV3Plus-Xception65     | 16      |  N/A    |  16/16   |  0.868    |    [Download](https://www.dropbox.com/s/lyitv285bgza9u5/best_deeplabv3plus_xception65_voc_os16.pth?dl=0)   | - |
 
+#### 1.2 With DCLS-ASPP module
+
+|  Model          | Batch Size  | Scaling gain  | train/val OS   |  mIoU        | Google Drive  | 
+| :--------        | :-------------: | :----:   | :-----------: | :--------: | :--------: | 
+| DeepLabV3Plus-MobileNet   | 16      |  10     |  16/16   |  0.725    |    [Download](https://drive.google.com/file/d/1jar0NFhWKTmlydWEQU_OG8VzRTA2FUl4/view?usp=sharing)   |
+| DeepLabV3Plus-ResNet50    | 16      |   4     |  16/16   |  0.784     |    [Download](https://drive.google.com/file/d/1N8MGJKadT8u6iD97DODCsXPjk-gOek1M/view?usp=sharing)   | 
+| DeepLabV3Plus-ResNet101     | 16      |  4    |  16/16   |  0.794     |    [Download](https://drive.google.com/file/d/1vqJBqdyZNkQ0F1OXmgMT125ZYeQyexTl/view?usp=sharing)   | 
+| DeepLabV3Plus-Xception65     | 16      |  10  |  16/16   |  0.873    |    [Download](https://drive.google.com/file/d/1jNzn6txjD0LHFLdSDFlqL1tnmiGL9bpL/view?usp=sharing)   |
 
 ### 2. Performance on Cityscapes (19 classes, 1024 x 2048)
 
@@ -189,6 +201,12 @@ Run main.py with *"--year 2012_aug"* to train your model on Pascal VOC2012 Aug. 
 python main.py --model deeplabv3plus_mobilenet --enable_vis --vis_port 28333 --gpu_id 0 --year 2012_aug --crop_val --lr 0.01 --crop_size 513 --batch_size 16 --output_stride 16
 ```
 
+#### 3.2 Training with DCLS
+
+```bash
+python main.py --model deeplabv3plus_xception65 --enable_vis --vis_port 28333 --gpu_id 0 --year 2012_aug --crop_val --lr 0.01 --crop_size 513 --batch_size 16 --output_stride 16 --dcls --dcls_gain 10
+```
+
 #### 3.3 Continue training
 
 Run main.py with '--continue_training' to restore the state_dict of optimizer and scheduler from YOUR_CKPT.
@@ -203,6 +221,12 @@ Results will be saved at ./results.
 
 ```bash
 python main.py --model deeplabv3plus_mobilenet --enable_vis --vis_port 28333 --gpu_id 0 --year 2012_aug --crop_val --lr 0.01 --crop_size 513 --batch_size 16 --output_stride 16 --ckpt checkpoints/best_deeplabv3plus_mobilenet_voc_os16.pth --test_only --save_val_results
+```
+
+#### 3.4.1 Testing with DCLS
+
+```bash
+python main.py --model deeplabv3plus_resnet101 --enable_vis --vis_port 28333 --gpu_id 0 --year 2012_aug --crop_val --lr 0.01 --crop_size 513 --batch_size 16 --output_stride 16 --ckpt checkpoints/best_deeplabv3plus_resnet101_voc_dcls_os16.pth --dcls --dcls_gain 4 --test_only --save_val_results
 ```
 
 ## Cityscapes
